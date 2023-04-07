@@ -1,6 +1,4 @@
-# Final Project Report - Team Thunder Buddies
-
-## Deploying Kubernetes Application using Amazon EKS
+# Deploying Kubernetes Application using Amazon EKS
 
 ### Abstract
 In this project, a containerized Photo Gallery application developed using WordPress is deployed onto a Kubernetes Cluster using spot instances. Amazon Elastic Container Service for Kubernetes (Amazon EKS) manages the clusters. EKS allows flexible running and deployment of Kubernetes applications in AWS cloud with all-time accessible and reliable clusters while automating features like patching and node provisioning. A single EKS cluster can run multiple applications by taking advantage of Kubernetes namespaces and IAM security policies. Spot Instances utilize unused EC2 instances at steep discounts lowering Amazon EC2 costs significantly. This makes the implementation a cost-efficient approach.
