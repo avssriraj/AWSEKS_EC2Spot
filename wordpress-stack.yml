@@ -1,0 +1,72 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: Wordpress
+        Parameters:
+          - wordpressUsername
+          - wordpressPassword
+      - Label:
+          default: Kube Cluster
+        Parameters:
+          - EKSClusterName
+          - Namespace
+          - Name
+    ParameterLabels:
+      wordpressUsername:
+        default: Wordpress Username
+      wordpressPassword:
+        default: Wordpress Password
+      EKSClusterName:
+        default: EKS Kube Cluster Name
+      Namespace:
+        default: Kube Namespace for this function
+      Name:
+        default: Kube Name for this function
+Parameters:
+   wordpressUsername:
+    AllowedPattern: ^[a-z][a-z0-9_]*$
+    Default: avssriraj
+    MaxLength: '60'
+    MinLength: '1'
+    Type: String
+   wordpressPassword:
+    MaxLength: '64'
+    NoEcho: 'true'
+    Type: String
+   EKSClusterName:
+    Type: String
+   Namespace:
+    Type: String
+    Default: "wp-helm"
+   Name:
+    Type: String
+    Default: "wpccproj"
+Resources:
+  Wordpresource:
+    Type: "AWSQS::Kubernetes::Helm"
+    Properties:
+      ClusterID: !Ref EKSClusterName
+      Namespace: !Ref Namespace
+      RoleArn: arn:aws:iam::132656972280:role/eks-admin
+      Repository: https://charts.bitnami.com/bitnami
+      Chart: bitnami/wordpress
+      Name: !Ref Name
+      Values:
+        wordpressUsername: !Ref wordpressUsername
+        wordpressPassword: !Ref wordpressPassword
+  WPElbHostName:
+    DependsOn: Wordpresource
+    Type: "Custom::KubeGet"
+    Version: '1.0'
+    Properties:
+     ServiceToken: !Sub "arn:aws:lambda:us-east-2:132656972280:function:hostnameLambda"
+     ClusterName: !Ref EKSClusterName
+     Namespace: !Ref Namespace
+     Name: !Sub 'service/${Name}-wordpress'
+     JsonPath: '{.status.loadBalancer.ingress[0].hostname}'
+
+Outputs:
+    WPElbHostName:
+      Value: !Ref WPElbHostName
